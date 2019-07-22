@@ -1,4 +1,8 @@
+#!/usr/bin/python
+
 from sys import argv
+from os import makedirs
+from shutil import copy
 import matplotlib.pyplot as plt
 import numpy as np
 import math as m
@@ -34,6 +38,10 @@ thresh_high = 255
 e = m.pi**2
 # Output image maximum width
 out_max_width = 800
+# Output folder
+out_dir: str = 'data'
+dst_dir: str = out_dir + '/images/img'
+jsn_dir: str = out_dir + '/images/json'
 
 # Function to detect image's color set (all possible color values)
 def colorset(img):
@@ -55,23 +63,21 @@ def quench(img, colors):
 
 # Process command-line. Initialize argument parser
 parser = argparse.ArgumentParser(description="Segmentation script for sonar images")
-parser.add_argument('files', nargs='+', type=argparse.FileType('rb'), help='File names to process.')
+parser.add_argument('file', nargs='+', type=argparse.FileType('rb'), help='File name to process.')
 # Argument mutually exclusive group: either bounding box or convex hull
-parser.add_mutually_exclusive_group()
-parser.add_argument('-b', '--bbox', action='store_true', help='Draw bounding box around objects (excludes --hull).')
-parser.add_argument('-u', '--hull', action='store_true', help='Draw convex hull around objects (excludes --bbox).')
+mutex_group = parser.add_mutually_exclusive_group()
+mutex_group.add_argument('-b', '--bbox', action='store_true', help='Draw bounding box around objects (excludes --hull).')
+mutex_group.add_argument('-u', '--hull', action='store_true', help='Draw convex hull around objects (excludes --bbox).')
 # Parse or die!
 try:
-  args = parser.parse_args(argv)
-except argparse.ArgumentError as e:
-  print("Error:", e)
-except IndexError as e:
-  # This error occurs while processing ArgumentError
-  # Use exception chaining to pop up the real reason
-  print("Error:", e.__cause__ or e.__context__ or e)
-else:
-  for sonar_file in args.files[1:]:
+  args = parser.parse_args()
+  makedirs(dst_dir, exist_ok=True)
+  makedirs(jsn_dir, exist_ok=True)
+
+  # Process files
+  for sonar_file in args.file[1:]:
     with sonar_file:
+      img_name = sonar_file.name
       img = np.frombuffer(sonar_file.read(), np.uint8)
     org = cv.imdecode(img, cv.IMREAD_COLOR)
     img = cv.cvtColor(org, cv.COLOR_BGR2RGB)
@@ -146,12 +152,29 @@ else:
     res = cv.resize(org, (out_max_width, round(h * scale)))
     cv.imshow(argv[1], res)
     # Wait for Delete (255 or 127), Esc (27) or Enter (13)
-    while cv.waitKey() not in (255, 127, 27, 13):
-      continue
+    while True:
+      key = cv.waitKey()
+      if key in (255, 127):
+        break
+      elif key == 27:
+        break
+      elif key == 13:
+        # Save the file to destination if Enter is pressed
+        try:
+          copy(img_name, dst_dir)
+        except OSError as e:
+          print("Error:", e)
+        break
     cv.destroyAllWindows()
     #plt.imshow(img)
     #plt.show()
-finally:
-  parser.exit()
+except argparse.ArgumentError as e:
+  print("Error:", e)
+except IndexError as e:
+  # This error occurs while processing ArgumentError
+  # Use exception chaining to pop up the real reason
+  print("Error:", e.__cause__ or e.__context__ or e)
+except OSError as e:
+  print("Error:", e)
 
 # vim: se et ts=2 sw=2 number:
