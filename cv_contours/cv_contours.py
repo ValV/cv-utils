@@ -110,13 +110,9 @@ def get_hulls(contours):
 # Function to get seabed edge mask
 def get_edge(grayscale):
   mask = np.rot90(np.array(grayscale), 3)
-  #edge = np.zeros(mask.shape[0])
   for row in range(0, mask.shape[0]):
     edge = True
     for col in range(0, mask.shape[1] - 1):
-      #edge = edge | ((mask[:,col] >= 230) &
-      #    (mask[:,col+1] < mask[:,col]))
-      #mask[:,col] = edge * 255
       if (mask[row, col] >= 230) and (mask[row, col + 1] < mask[row, col]):
         edge = False
       if edge:
@@ -129,7 +125,6 @@ def get_edge(grayscale):
 
 # Function to get contours from the image
 def get_contours(img):
-  # Find contours
   contours, hierarchy = cv.findContours(img, cv.RETR_EXTERNAL,
                                         cv.CHAIN_APPROX_SIMPLE)
   areas = []
@@ -161,19 +156,19 @@ try:
       img_name = sonar_file.name
       img = np.frombuffer(sonar_file.read(), np.uint8)
     org = cv.imdecode(img, cv.IMREAD_COLOR)
+
     org = remove_grid(org) # breaks image (needs at least one conversion)
     img = cv.cvtColor(org, cv.COLOR_BGR2RGB)
     org = cv.cvtColor(img, cv.COLOR_RGB2BGR) # fix broken origin image
-    # Make all the given  pixels black
-    #quench(img, quench_colors)
-    #img[np.where((img!=bump_colors[-1]).all(axis=2))] = [0,0,0]
+
     # Perform reflection -> volume transformation (bump mapping)
     img = bump(img, bump_colors)
+
     # Erase top region
     img = remove_top(img, erase_top)
+
     # Image filtering
     imgray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
-    #print("Grayscale shape:", imgray.shape)
     seabed_mask = get_edge(imgray) # this is too slow (TODO: optimize)
     #print("Seabed mean:", np.mean(seabed_mask))
 
@@ -204,60 +199,10 @@ try:
       fishes = imgray
     fishes = cv.GaussianBlur(fishes, (kernel_size, kernel_size), 0)
     _, fishes = cv.threshold(fishes, thresh_low, thresh_high, cv.THRESH_BINARY | cv.THRESH_OTSU)
-    #threshx = cv.adaptiveThreshold(imgray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 63, 2)
+
     # Preform distance and morphology transformations
     fishes = cv.morphologyEx(fishes, cv.MORPH_OPEN, kernelx, iterations=2)
     fishes = cv.morphologyEx(fishes, cv.MORPH_CLOSE, kernel, iterations=2)
-
-    output = fishes#cv.bitwise_and(closing, opening)
-    #output = cv.GaussianBlur(output, (kernel_size, kernel_size), 0)
-    #output = cv.morphologyEx(output, cv.MORPH_CLOSE, kernelx, iterations=2)
-    #output = cv.distanceTransform(output, cv.DIST_L2, 5)
-
-    # Find sure background
-    #sure_bg = cv.dilate(thresh, kernel, iterations=3)
-
-    # Find sure foreground area
-    #dist_trans = cv.distanceTransform(opening, cv.DIST_L2, 5)
-    #_, sure_fg = cv.threshold(dist_trans, 0.7 * dist_trans.max(), 255, 0)
-
-    # Unknown regions
-    #sure_fg = np.uint8(sure_fg)
-    #unknown = cv.subtract(sure_bg, sure_fg)
-    # Marker labelling
-    #_, markers = cv.connectedComponents(sure_fg)
-
-    # Increment labels for background to be 1
-    #markers = markers + 1
-
-    # Set unknown region as zero
-    #markers[unknown==255] = 0
-
-    # Apply watershed
-    #markers = cv.watershed(img, markers)
-    #img[markers==-1] = [255, 0, 0]
-
-    # Find contours
-    #contours, hierarchy = cv.findContours(output, cv.RETR_EXTERNAL,
-    #                                      cv.CHAIN_APPROX_SIMPLE)
-
-    #areas = []
-    #for contour in contours:
-      #moment = cv.moments(contour)
-      # Skip bad contours
-      #if moment["m00"] <= 0:
-      #  continue
-      #center_x = int(moment["m10"] / moment["m00"])
-      #center_y = int(moment["m01"] / moment["m00"])
-      # Skip contours in the upper half of the image (not seabed)
-      #if center_y <= org.shape[0] / 2:
-      #  continue
-      # Skip contours with area below minimal (very small objects)
-      #if (cv.contourArea(contour)) < object_min:
-      #  continue
-      # Approximate and add a contour
-      #epsilon = eps * m.erf(cv.arcLength(contour, True) / (m.pi * object_min))
-      #areas.append(cv.approxPolyDP(contour, epsilon, True))
 
     # Draw contours
     fishes_contours = get_contours(fishes)
