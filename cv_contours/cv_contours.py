@@ -110,15 +110,11 @@ def get_hulls(contours):
 # Function to get seabed edge mask
 def get_edge(grayscale):
   mask = np.rot90(np.array(grayscale), 3)
-  for row in range(0, mask.shape[0]):
-    edge = True
-    for col in range(0, mask.shape[1] - 1):
-      if (mask[row, col] >= 230) and (mask[row, col + 1] < mask[row, col]):
-        edge = False
-      if edge:
-        mask[row, col] = 0
-      else:
-        mask[row, col] = 255
+  edge = np.zeros(mask.shape[0], dtype=np.uint8)
+  for col in range(0, mask.shape[1] - 1):
+    edge = edge | ((mask[:,col] >= 230) &
+        (mask[:,col+1] < mask[:,col]))
+    mask[:,col] = edge * 255
   mask = shift(mask, (0, 5), cval=0) # TODO: make configurable option
   mask = np.rot90(mask)
   return mask
