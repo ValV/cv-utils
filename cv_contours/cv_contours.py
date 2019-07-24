@@ -151,7 +151,7 @@ try:
   makedirs(jsn_dir, exist_ok=True)
 
   # Process files
-  for sonar_file in args.file[1:]:
+  for sonar_file in args.file:
     with sonar_file:
       img_name = sonar_file.name
       img = np.frombuffer(sonar_file.read(), np.uint8)
