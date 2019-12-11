@@ -12,6 +12,10 @@ The script is located in `cv_contours` folder. See corresponding [readme](cv_con
 
 The script is located in `gtiff_convert` folder. This script converts grayscale GeoTIFF to RGB GeoTIFF file using GDAL library (it is assumed to be installed in the system).
 
+## Image Dataset Splitter
+
+The script is located in `dataset_splitter` folder, see its [readme](dataset_splitter) file. This script automates splitting large image datasets into labeled subsets.
+
 ## TODO
 
 - add more scripts;
