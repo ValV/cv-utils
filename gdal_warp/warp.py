@@ -62,9 +62,12 @@ def warp(files: List[str], shape: str = None, output: str = 'output') -> bool:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='GDAL Warp Script')
-    parser.add_argument('-s', '--shape', nargs='?', help='shapefile cutline')
-    parser.add_argument('-o', '--output', nargs='?', help='output directory')
-    parser.add_argument('file', nargs='*') #, type=argparse.FileType('r')
+    parser.add_argument('-s', '--shape', nargs='?', metavar='file',
+                        help='shapefile cutline')
+    parser.add_argument('-o', '--output', nargs='?', metavar='path',
+                        help='output directory')
+    parser.add_argument('file', nargs='*',
+                        help='GeoTIFF file to warp and cut')
 
     args = parser.parse_args()
     warp(args.file, args.shape, args.output)

@@ -1,17 +1,29 @@
 # GDAL Warp Script
 
+## Example usage:
+
+```shell
+python warp.py -s shapefile.shp *.tif
 ```
-usage: warp.py [-h] [-s [SHAPE]] [-o [OUTPUT]] [file [file ...]]
+
+This will process all the `*.tif` files in current directory and write output files into `output/` directory by default.
+
+> Without `-s shapefile.shp` provided the script will stop (see source to fix it).
+
+## Full help:
+
+```
+usage: warp.py [-h] [-s [file]] [-o [path]] [file [file ...]]
 
 GDAL Warp Script
 
 positional arguments:
-  file
+  file                  GeoTIFF file to warp and cut
 
 optional arguments:
   -h, --help            show this help message and exit
-  -s [SHAPE], --shape [SHAPE]
+  -s [file], --shape [file]
                         shapefile cutline
-  -o [OUTPUT], --output [OUTPUT]
+  -o [path], --output [path]
                         output directory
 ```
