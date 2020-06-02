@@ -39,17 +39,22 @@ def warp(files: List[str], shape: str = None, output: str = 'output') -> bool:
     try:
         output = output or 'output'
         os.makedirs(output, exist_ok=True)
+        print(f"Using output directory '{output}'")
     except PermissionError as e:
         print(f"Failed creating output directory {e}!")
         return False
 
     # Process files
+    print(f"Start processing {len(files)} files:")
     for filename in files:
         try:
             source = os.path.abspath(filename)
             # Skip to next file if this one does not exist
             if not os.path.isfile(source):
+                print(f"Bad file '{source}'!")
                 continue
+            else:
+                print(f"Processing '{source}'...")
             name, extension = os.path.splitext(os.path.basename(source))
             destination = os.path.join(os.path.abspath(output),
                                        f"{name}_shaped{extension}")
@@ -70,6 +75,7 @@ if __name__ == '__main__':
                         help='GeoTIFF file to warp and cut')
 
     args = parser.parse_args()
+    #print(f"Arguments: {args}")
     warp(args.file, args.shape, args.output)
 
 # vim: se et sw=4 sts=4 syntax=python:
