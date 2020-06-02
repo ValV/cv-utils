@@ -46,15 +46,15 @@ def warp(files: List[str], shape: str = None, output: str = 'output') -> bool:
 
     # Process files
     print(f"Start processing {len(files)} files:")
-    for filename in files:
+    for index, filename in enumerate(files):
         try:
             source = os.path.abspath(filename)
             # Skip to next file if this one does not exist
             if not os.path.isfile(source):
-                print(f"Bad file '{source}'!")
+                print(f"{index:5d}. Bad file '{source}'!")
                 continue
             else:
-                print(f"Processing '{source}'...")
+                print(f"{index:5d}. Processing '{source}'...")
             name, extension = os.path.splitext(os.path.basename(source))
             destination = os.path.join(os.path.abspath(output),
                                        f"{name}_shaped{extension}")
