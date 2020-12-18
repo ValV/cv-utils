@@ -34,7 +34,7 @@ def image_move(filename: str, key: int):
   except IOError as e:
     print("Error copying to {1}:\n{0}".format(e, destination))
   else:
-    print("Image has been cpoied to {0}".format(destination))
+    print("Image has been copied to {0}".format(destination))
   return None
 
 def fit_svga(image: np.ndarray):
@@ -106,6 +106,10 @@ try:
             (32, image.shape[0] - 48), cv.FONT_HERSHEY_SIMPLEX,
             0.35, (255, 255, 255), 1)
         
+        #cv.startWindowThread()
+        cv.namedWindow(image_file, cv.WINDOW_AUTOSIZE)
+        cv.moveWindow(image_file, 600 - image.shape[1] // 2,
+                                  384 - image.shape[0] // 2)
         cv.imshow(image_file, image)
         while True:
           key = cv.waitKey()
@@ -117,7 +121,7 @@ try:
             break
           elif key == 32:
             # Space: skip into the next cycle
-            print("Skipping {0} to next cycle.".format(image_file))
+            print("Skipping {0} to the next cycle.".format(image_file))
             remain.append(image_file)
             images_skipped += 1
             cv.destroyWindow(image_file)
