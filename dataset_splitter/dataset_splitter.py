@@ -80,7 +80,7 @@ try:
     for image_file in image_files:
       #print(image_file)
       image = cv.imread(image_file, cv.IMREAD_COLOR)
-      if not type(image) is None:
+      if type(image) is np.ndarray:
         # Process image file
         image = fit_svga(image)
         for i, line in enumerate(image_info):
