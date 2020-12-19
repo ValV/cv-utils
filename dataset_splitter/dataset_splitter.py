@@ -131,7 +131,8 @@ try:
             print("Imagery processing aborted...")
             parser.exit()
             break
-      # else: skip image file
+      else: # skip image file
+        images_total -= 1
     image_files = remain
     cycle += 1
   print("All imagery was successfully splitted!")
